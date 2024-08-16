@@ -322,7 +322,7 @@ comment #>                                                      # Ends the multi
 
 
 
-3. PowerShell Profiles
++++++++++++ 3. PowerShell Profiles
 
     PowerShell profiles are a convenient way to store PowerShell configuration information as well as personalized aliases and functions to persistent use in every PowerShell session.
 

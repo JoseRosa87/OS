@@ -1,0 +1,52 @@
+                                      DAY 1
+# Read the file, sort lines in descending alphabetical order, and get the 21st line
+$line21 = Get-Content -Path "words.txt" | Sort-Object -Descending | Select-Object -Index 20
+# Output the result
+$line21
+
+Count number of unique Words:
+(Get-Content -Path "C:\Users\CTF\Desktop\CTF\words.txt" | Sort-Object -Unique).Count
+__________________________________________________
+
+Find number of mthods in a process:
+	(Get-Process | Get-Member -MemberType Method).Name
+_____________________________________________________
+
+Count the number of folders in a profile: 
+(Get-ChildItem -Path "C:\Users\CTF\Music" -Directory).Count
+______________________________________________________
+
+Count the number of times a word appears in a text document (example gaab)
+	(Get-Content -Path "C:\Users\CTF\Desktop\CTF\words.txt" | Where-Object { $_ -ieq 'gaab' }).Count
+______________________________________________________
+
+count the number of words in words.txt that contain either the letter a or z, case-insensitively,
+(Get-Content -Path "C:\Users\CTF\Desktop\CTF\words.txt" | Where-Object { $_ -match '[az]' }).Count
+_____________________________________________________
+
+count the number of lines in words.txt
+	(Get-Content -Path "C:\Users\CTF\Desktop\CTF\words.txt" | Where-Object { $_ -match 'az' }).Count
+_____________________________________________________
+
+Count number of words that have a twice and consect. 
+# Define the file path
+$filePath = "C:\Users\CTF\Desktop\CTF\words.txt"
+____________________________________________________
+
+# Define a regex pattern that matches "a" appearing at least twice consecutively and followed by any letter from a to g.
+$pattern = "aa+[a-g]"
+
+# Initialize a counter
+$count = 0
+
+# Read the file and count the matching words
+Get-Content $filePath | ForEach-Object {
+    if ($_ -match $pattern) {
+        $count++
+    }
+}
+
+# Output the count of matching words
+Write-Output "Number of words that meet the criteria: $count"
+__________________________________________________________
+DAY 2

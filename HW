@@ -1,4 +1,4 @@
-                                      DAY 1
+                                      DAY 1 - Powershell
 # Read the file, sort lines in descending alphabetical order, and get the 21st line
 $line21 = Get-Content -Path "words.txt" | Sort-Object -Descending | Select-Object -Index 20
 # Output the result
@@ -49,4 +49,4 @@ Get-Content $filePath | ForEach-Object {
 # Output the count of matching words
 Write-Output "Number of words that meet the criteria: $count"
 __________________________________________________________
-DAY 2
+							DAY 2 - Powershell

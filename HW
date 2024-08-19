@@ -49,4 +49,5 @@ Get-Content $filePath | ForEach-Object {
 # Output the count of matching words
 Write-Output "Number of words that meet the criteria: $count"
 __________________________________________________________
-							DAY 2 - Powershell
+							DAY 2 - Registries
+

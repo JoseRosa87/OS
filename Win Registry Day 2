@@ -52,3 +52,27 @@ ontains configuration information for the entire computer. Its values are read e
 
 __________________________________________________________________________________
 HKCU(Current-user) is a pulled copy of HKU (student)
+************** IMPORTANT**************
+
+Minimum commands to know
+
+    Query
+
+        Get-ChildItem cmdlet gets the items in one or more specified locations.
+
+        Get-ItemProperty cmdlet gets the items in one or more specified locations.
+
+        Get-Item cmdlet gets the item at the specified location. It doesn’t get the contents of the item at the location unless you use a wildcard character (*) to request all the contents of the item.
+
+    Modify
+
+        Set-ItemProperty cmdlet changes the value of the property of the specified item. example, changing setting to :true or :false.
+
+        Remove-ItemProperty cmdlet to delete registry values and the data that they store.
+
+    Create
+
+        New-Item cmdlet creates a new item and sets its value. In the registry, New-Item creates registry keys and entries.
+
+        New-Itemproperty cmdlet creates a new property for a specified item and sets its value. Typically, this cmdlet is used to create new registry values, because registry values are properties of a registry key item.
+

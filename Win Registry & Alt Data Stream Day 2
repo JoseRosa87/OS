@@ -77,4 +77,7 @@ Minimum commands to know
         New-Itemproperty cmdlet creates a new property for a specified item and sets its value. Typically, this cmdlet is used to create new registry values, because registry values are properties of a registry key item.
 ____________________________________________________________________________________
 
+                                                                    ALTERNATE DATA STEREAMS 
+
+
 

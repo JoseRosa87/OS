@@ -75,4 +75,6 @@ Minimum commands to know
         New-Item cmdlet creates a new item and sets its value. In the registry, New-Item creates registry keys and entries.
 
         New-Itemproperty cmdlet creates a new property for a specified item and sets its value. Typically, this cmdlet is used to create new registry values, because registry values are properties of a registry key item.
+____________________________________________________________________________________
+
 

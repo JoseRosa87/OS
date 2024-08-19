@@ -1,1 +1,54 @@
+You can go into the files by start ---> type regedit
 
+
+2. Registry structure
+
+The Registry is comprised of Registry Hives which contain Keys, Subkeys and Values.
+2.1 Registry Keys and Values
+
+The registry is comprised of Keys, Subkeys and Values structured in a tree format.
+
+    Keys - are known as Registry Hives and can contain subkeys and values.
+
+    Subkeys - can contain subkeys and values
+
+    Values - contain data in specific formats.
+
+
+Example Registry Layout
+
+HKEY_Local_Machine (HIVE)
+              ├──SOFTWARE (Key)
+              ├──BCD00000 (Key)
+              ├──HARDWARE (Key)
+              └──SYSTEM   (Key)
+                      └──RegisteredApplications (Subkey)
+                                        ├── File Explorer : Data (value)
+                                        ├── Paint : Data (value)
+                                        └──Wordpad : Data (value)
+
+____________________________________________________________________________
+
+ (**** important)
+There are five Registry Hives
+
+    HKEY_LOCAL_MACHINE *****
+    HKEY_USERS *****
+    HKEY_CURRENT_USERS  *****
+    HKEY_CURRENT_CONFIG
+    HKEY_CLASSES_ROOT
+keys*****
+
+___________________________________________________________________________
+ontains configuration information for the entire computer. Its values are read every time the machine is started regardless of the user who logs in. Its subkeys are :
+
+    HARDWARE - contains a database of installed devices along with their drivers
+
+    SAM - Security Account Manager stores user and group accounts along with NTLM hashes of passwords
+
+    Security - Local Security policy accessed by lsass.exe used to determine rights and permissions for users on the machine
+
+    System - Contains keys pertaining to system startup such as programs started on boot or driver load order.
+
+__________________________________________________________________________________
+HKCU(Current-user) is a pulled copy of HKU (student)

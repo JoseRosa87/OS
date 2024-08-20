@@ -1,1 +1,205 @@
 
+Bassic Commands for linux       explainshell.com
+******  = important!!
+___________________________
+
+    hostname or uname -a displays the name of the host you are currently on.
+
+    whoami shows the user you are currently logged in as (useful after gaining access through service exploitation).
+
+    w or who shows who else is logged in.
+
+    ip addr or ifconfig displays network interfaces and configured IP addresses.
+
+    ip neigh or arp displays MAC addresses of devices observed on the network.
+
+    ip route or route shows where packets will be routed for a particular destination address.
+
+   ******* ss or netstat will show network connections, with the appropriate flags will show listening ports   *******
+
+    nft list tables or iptables -L to view firewall rules.
+
+   ********* sudo -l displays commands the user may run with elevated permissions.  ************
+
+________________________________________________________________________________________________
+to get help use <man + command> example man help
+
+cool website for <ss64> 
+
+redirections is the same as outfiles. 
+
+_______________________________________________________________________________________________
+Redirection
+
+Success and Failure Output from commands by default is sent to the terminal, but it can be redirected to other locations as well. Output from commands are assigned to a stream. There are three types of streams by default:
+
+    standard input 0 ←--- the default for a command arguments
+
+    standard output 1 ←--- the default for successful command output
+
+    standard error 2 ←--- the default for failed commands or errors
+_____________________________________________________________________________________________
+LOOPS
+For Loops
+
+For Loops go by many names such as Counting Loops and Interactive Loops, but they all do the same thing - execute a command or commands multiple times with a changing variable as an argument. A complete for loop will have the following:
+
+    a collection of objects assigned to a variable
+
+    a variable that represents the value in the collection correctly being worked on
+
+    a command or commands that will execute with each value in the collection of variables
+
+Making a Collection of objects
+
+student:~$ objects=$(ls -d /etc/*) 
+student:~$ echo $objects 
+/etc/NetworkManager /etc/PackageKit /etc/UPower /etc/X11 /etc/acpi /etc/adduser.conf /etc/alternatives /etc/anacrontab /etc/apg.conf /etc/apm /etc/apparmor /etc/apparmor.d /etc/apport /etc/apt /etc/at.deny /etc/bash.bashrc /etc/bash_completion /etc/bash_completion.d /etc/bindresvport.blacklist /etc/binfmt.d /etc/byobu /etc/ca-certificates /etc/
+
+________________________________________________________________________________________________
+3.1 Linux Filesystem Hierarchy  ***********
+
+Every *Nix system from Ubuntu to Debian has a defined file system layout which is known as the Linux FSH (File System Hierarchy). It is a standard which defines the directory structure on all Linux distributions. What does that mean? Well, by default it defines:
+
+    The root directory of the file system /
+
+        Everything starts from this directory. Think of it as the doorway to the Linux Filesystem
+
+    Essential user commands in /bin    **** Search this for commands
+
+        Contains commands like ls and echo which every user can use.
+
+    User Directories in /home
+
+        Contains directories for every non-root user on the system (with a home directory and login shell)
+
+    Host specific system configurations in /etc
+
+        Stands for everything configurable
+
+        Contains network configurations, system services(daemons), firewall configurations, etc.
+
+    Variable data files in /var
+
+        Contains all of the system logs by default
+_________________________________________________________________
+
+
+<-> is a file <d> is directory 
+
+________________________________________________________________
+PERMISSION GROUPS
+
+Table 1. Linux Permissions broken out Perm 	Relative 	Octal 	On a File 	On a Directory
+
+read
+	
+
+r
+	
+
+4
+	
+
+Read the contents of the file
+	
+
+List the contents of the directory
+
+write
+	
+
+w
+	
+
+2
+	
+
+Write content into a file
+	
+
+Create/delete in the directory
+
+exe
+	
+
+x
+	
+
+1
+	
+
+Run the file as an executable
+	
+
+Move into the directory
+
+ownder / Group / Others
+_____________________________________________________
+
+4.2 Awk - gives output 
+
+awk is yet another important string manipulation tool. Unlike grep which searches for strings of text, awk allows you to reformat or select sections of text based on delimiters on the fly. Awk is commonly used to create tabular data sets from command output in Bash. However, it is a very flexible tool and its functionality does not end there.
+Reformat output from a command to create a comma delimited file with awk
+
+student@linux-opstation-kspt:~$ ls -l /etc 
+drwxr-xr-x  7 root root       4096 Feb  4  2020 NetworkManager
+drwxr-xr-x  2 root root       4096 Feb  4  2020 PackageKit
+drwxr-xr-x  2 root root       4096 Feb  4  2020 UPower
+_truncated_
+
+student@linux-opstation-kspt:~$ ls -l /etc | awk -F " " '{print$3","$4","$9}' > files.csv 
+student@linux-opstation-kspt:~$ cat files.csv
+root,root,NetworkManager
+root,root,PackageKit
+root,root,UPower
+_truncated_
+
+__________________________________________________
+SED edits texts.
+4.3 Sed
+
+Sed is yet another string manipulation tool, but it edits text instead of filtering or formatting it like the other two. Sed is special because it edits text as it is sent to standard output. It is known as a stream editor. Text edited from sed can also be saved assuming the user executing it has the right permissions.
+
+_______________________________________________
+.4 Regular Expressions
+
+Regular expressions, or regex, are a pattern matching language developed in the 1980s with the first use of the Unix operating system. Regex filters on patterns strings that may match multiple permutations. Most internet search engines, online shopping, and really any place there is a search button uses them too.
+
+
+Showing how regular expressions can match on multiple permutations of strings
+
+student@linux-opstation-kspt:~$ echo -e "Handel\nHändel\nHaendel" > regexfile 
+student@linux-opstation-kspt:~$ grep -P "H(ä|ae?)ndel" regexfile >  
+Handel
+Händel
+Haendel
+
+	Create a file with 3 similar names in it and save it as regexfile in the current directory.
+	Use grep with -P to specify Perl regular expressions and look for :
+	H,ä or a, e is optional, ndel.
+
+__________________________________________________
+
+Showing how regular expressions can match on multiple permutations of strings in files that are too large to search manually
+
+student@linux-opstation-kspt:~$ cat results.txt 
+111-715-255643
+(9279815)92-3599127
+466-33836614-273
+_truncated_
+
+student@linux-opstation-kspt:~$ grep -P '\b\d{3}-\d{2}-\d{4}\b' results.txt
+629-75-1985
+386-67-7872
+478-71-4964
+
+student@linux-opstation-kspt:~$ grep -P '\(\d{3}\)\d{3}-\d{4}\b' results.txt
+(267)874-4532
+(446)146-8923
+(548)985-5415
+(199)363-3617
+
+	Attempting to cat the a large file isn’t very helpful.
+	Execute grep to search for the following pattern : nnn-nn-nnnn.
+	Execute grep to search for the following pattern : (nnn)nnn-nnnn.

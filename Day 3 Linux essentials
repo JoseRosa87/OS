@@ -203,3 +203,244 @@ student@linux-opstation-kspt:~$ grep -P '\(\d{3}\)\d{3}-\d{4}\b' results.txt
 	Attempting to cat the a large file isn’t very helpful.
 	Execute grep to search for the following pattern : nnn-nn-nnnn.
 	Execute grep to search for the following pattern : (nnn)nnn-nnnn.
+___________________________________________________________________________________
+
+LINUX
+File – shows what kind of file and if zipped
+Unzip Encrypted
+**Permissions**
+-rwx rwx rwx
+Owner Group Others
+
+find -type f -exec grep -H &#39;txt&#39; {} \; (finding files containing “txt”)
+find /home -type f -exec grep -H &#39;txt&#39; {} \; (if you know the path)
+
+Find Search the man pages for the keyword digest. Then, use one of the binaries listed to hash the string
+OneWayBestWay using the largest sha hash available.The resulting hash is the flag.
+Man -k digest
+echo -n &quot;OneWayBestWay&quot; | openssl dgst -sha512
+--------------------------or----------------------------
+echo &quot;OneWayBestWay&quot; | sha512sum
+Search the man pages for the keyword digest. Then, use one of the binaries listed to hash the string
+OneWayBestWay using the largest sha hash available. The resulting hash is the flag.
+File Encrypted
+Unzip Encrypted
+openssl enc -aes-128-cbc -d -in &quot;cipher&quot; -k password
+openssl aes-128-cbc -d -in cipher -out decrypted3 -k AES128Key
+Search the user home directories to find the file with the second-most lines in it. The flag is the number of
+lines in the file. Hint: Exclude the VDI file! 20003
+wc to scan the file and count the lines, words, and bytes
+find /home -type f -exec wc -l {} | sort -nr
+This is the full command:
+find /home -type f ! -name &#39;*.vdi.7z&#39; -exec wc -l {} + 2&gt;/dev/null | sort -nr | head -n 2
+find /home -type f starts the search within /home for files.
+
+-type ! name ‘*.vdi’ excludes files that end with .vdi from the results. ! omits
+-exec wc -l {} + executes wc -l for each file found to count its lines. {} is replaced by the found file names, and
++ at the
+2&gt;/dev/null redirects errors
+sort -nr sorts the line counts in descending order.
+head -n 2 grabs top two results
+Read the file that contains the user database for the machine. Identify a strange comment.
+grep &quot;garviel&quot; /etc/passwd
+Identify all members of the lodge group. List their names in alphabetical order with a comma in between
+each name. Flag Format: name,name,name
+grep “lodge” /etc/group
+getent group lodge
+Find the user with a unique login shell.
+awk -F&#39;:&#39; &#39;{print $1,$7}&#39; /etc/passwd | sort | uniq -u
+awk -F&#39;:&#39; &#39;{print $1,$7}&#39; /etc/passwd uses awk to split each line by the colon (:) delimiter and prints the 7 th field,
+which is the login hell
+sort: sorts the list of shells
+uniq -u filters the list to only include unique entries (those that appear exactly once)
+This is the full command:
+awk -F&#39;:&#39; &#39;{print $1,$7}&#39; /etc/passwd | sort -k2,2 | uniq -f1 -u
+Find the directory named Bibliotheca.
+Find / -type d -iname bibliotheca
+-iname performs case-insensitive search
+Identify the number of users with valid login shells, who can list the contents of the Bibliotheca directory.
+Run this command in the directory
+grep -E &#39;/bin/bash|/bin/sh&#39; /etc/passwd
+&#39;/bin/bash|/bin/sh&#39; filters users with common valid shells
+The permissions that user sejanus has on /media/Bibliotheca, in octal format. HINT: Think about groups
+5
+Locate the file within /media/Bibliotheca that is modifiable by the only user that is part of the chapter
+group, but not part of the lodge group. Hint: Not the hidden file
+find /media/Bibliotheca/ -type f ! -name &quot;.*&quot; -exec ls -l {} + | grep &#39;^..w&#39;
+! -name &quot;.*&quot; This negates the match for files that start with a dot (.)
+&quot;.*&quot; -exec ls -l Executes the ls -l command on the files found
+{} placeholder for each file found
++ Causes find to build the command by appending each selected file name at the end
+&#39;^..w&#39; Filter list to only include lines where 3 rd character is a w. This corresponds to the owner’s write
+permissions
+Identify the file within /media/Bibliotheca where the owning group has more rights than the owning user.
+find /media/Bibliotheca/ -type f ! -name &quot;.*&quot; -exec ls -l {} + | grep &#39;^.....w&#39;
+
+------------------------------------------------or------------------------------------------------------
+find /media/Bibliotheca/ -type f -exec ls -l {} + | awk &#39;$1 ~ /^.((r|-)(w|-)(x|-))((r|-)w(x|-))/&#39;
+This awk command pattern checks
+• The first character is any (file type indicator).
+• The next three characters are the user’s permissions (read, write, execute, with “-” for no permission).
+• The following three are the group’s permissions.
+The pattern ((r|-)(w|-)(x|-)) matches user permissions, and ((r|-)w(x|-)) checks if the group has write permission,
+potentially more than the user if the user’s corresponding write permission is a -.
+Execute the file owned by the guardsmen group in /media/Bibliotheca, as the owning user. The flag is the
+code name provided after a successful access attempt. Hint: Remember your sudo options.
+Used the previous command to see the groups: find /media/Bibliotheca/ -type f ! -name &quot;.*&quot; -exec ls -l {} + |
+grep &#39;^.....w&#39;
+sudo -l displays commands the user may run with elevated permissions*****
+Saw that I have permissions to gaunt, so I did:
+sudo -u gaunt /media/Bibliotheca/Bibliotheca_quattuor/Tactica_Imperium
+This command executes the file -u (username) gaunt.
+The user tyborc is unable to access the directory: /media/Bibliotheca/Bibliotheca_unus
+Why? Identify the permission missing in standard verb form.
+ls -l Output is: dr-xr-xr-- 2 mephiston chapter 4096 Feb 28 2022 Bibliotheca_unus
+Execute has to be on for directories.
+Locate the file in /media/Bibliotheca that Quixos has sole modification rights on.
+find /media/Bibliotheca/ -user quixos
+After this command you see the file names for quixos is Codex_Hereticus:
+find /media/Bibliotheca/ -iname &quot;Codex_Hereticus*&quot; -exec ls -lh {} \;
+--------------------------------------------------------or-------------------------------------------------------
+find /media/Bibliotheca/ -user quixos -exec ls -lh {} \; (with -user it has to match exactly/DON’T DO)
+Output is:
+-r--r--r-- 1 quixos quixos 3.6K Feb 28 2022 /media/Bibliotheca/Bibliotheca_unus/Codex_Hereticus
+-rw------- 1 quixos quixos 3.6K Feb 28 2022 /media/Bibliotheca/Bibliotheca_duo/Codex_Hereticus
+---xr-xrwx 1 quixos quixos 3.6K Feb 28 2022 /media/Bibliotheca/Bibliotheca_quattuor/Codex_Hereticus
+-r----xrwx 1 quixos quixos 3.6K Feb 28 2022 /media/Bibliotheca/Bibliotheca_tribus/Codex_Hereticus
+This indicates that only the owner has read and write permissions on the file.
+Read the concealed file within /media/Bibliotheca
+find /media/Bibliotheca/ -type f ! -perm -444
+! -perm -444: Files that do NOT (!) have permissions of at least 444. In the Unix permission notation, 444
+stands for read permissions for user (r--), group (r--), and others (r--). So, -perm -444 matches files that are
+readable by everyone.
+Putting it all together, this find command searches for files that are not readable by everyone. In other words, it
+finds files with permissions that are more restrictive than 444, which might indicate that they are “concealed” in
+terms of access permissions.
+
+This could be a way to conceal a file because it wouldn’t be easily accessible to a user without the necessary
+permissions, making it less likely to be discovered or read accidentally.
+Find the warp and read its secrets for the flag.
+find / -name &#39;*warp*&#39; 2&gt;/dev/null
+cd into the directory
+find -iname &quot;.*&quot; -type f
+Using the commands ls and grep, identify the number of directories in /etc/ that end in .d
+ls -l /etc/ | grep &#39;^d.*\.d$&#39; | wc -l
+ls -l /etc/: This lists the contents of the /etc directory in long format, which includes information such as the file
+type, permissions, owner, group, size, modification date, and name. The file type information is particularly
+important here because a line that represents a directory starts with a ‘d’.
+grep &#39;^d.*\.d$&#39;: This filters the output of the ls -l command to only show lines that represent directories ending
+with ‘.d’. The grep command is using a regular expression to match lines:
+^d: The caret ^ means the start of a line, followed by ‘d’, which will match directories since their listing starts
+with ‘d’.
+.*: The dot * matches any character (.) zero or more times (*), essentially allowing for any characters to be in
+the middle of the line.
+\.d$: The backslash \ escapes the dot . so it is treated as a literal period rather than any character, followed by
+‘d’. The dollar sign $ means the end of a line.
+This regular expression effectively selects lines that start with ‘d’ and end with ‘.d’, matching directories that
+end with the ‘.d’ suffix.
+wc -l: This counts the number of lines passed to it from the grep command, effectively giving the number of
+directories that end with ‘.d’.
+File: home/garviel/numbers
+Use regular expressions to match patterns similar to valid and invalid IP addresses. The answer is the
+count/number of lines that match in the file.
+grep -cP &quot;\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b&quot; /home/garviel/numbers
+-c: Count the number of lines that match the pattern.
+-P: Allows grep to interpret the pattern as a Perl-compatible regular expression (PCRE), which is more powerful
+and flexible than basic regular expressions.
+\b: Asserts a word boundary, ensuring that the match occurs at the start or end of a word.
+(?:...): A non-capturing group that groups the enclosed regex elements without storing the match.
+[0-9]{1,3}: Matches a sequence of digits (0-9) that is at least 1 digit long but no more than 3 digits long.
+\.: Matches a literal dot (period). In regular expressions, a dot is a special character that matches any character,
+so it must be escaped with a backslash to match a literal dot.
+{3}: This quantifier specifies that the preceding pattern (three digits followed by a dot) should occur exactly
+three times.
+[0-9]{1,3}: Matches another sequence of 1 to 3 digits (the last octet of the IP address).
+\b: Word boundary ensures the IP pattern does not occur in the middle of a larger string of digits or characters.
+/home/garviel/numbers: This is the file path
+File: home/garviel/numbers
+Use regular expressions to match valid IP addresses. The flag is the number of addresses. HINT: What
+are the valid numerical values of each octet in an IP address?
+grep -cP &quot;\b(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-
+9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b&quot; /home/garviel/numbers
+
+File: home/garviel/numbers
+Use regular expressions to match patterns that look similar to a MAC Address. Flag is a count of the
+number of matches. HINT: This is a loose match! Some of these results won&#39;t be true MAC addresses.
+Flag format: ####
+cat numbers | grep -E &quot;\b[0-9A-Z]{2}-[0-9A-Z]{2}-[A-Z0-9]{2}-[A-Z0-9]{2}-[0-9A-Z]{2}-[A-Z0-9]{2}\b&quot; |
+wc -l
+File: home/garviel/numbers
+Use awk to print lines:
+&gt;= 420 AND &lt;=1337
+The flag is a SHA512 hash of the output
+cat numbers | awk &#39;NR &gt;= 420 &amp;&amp; NR &lt;= 1337&#39; | sha512sum
+Identify the algorithm, the amount of salted characters added, and the length of the hashed password in
+the file that stores passwords. Hint: Research &#39;padding&#39;...
+Flag format: algorithm,#characters,#length
+sudo cat /etc/shadow | grep garviel
+Output:
+garviel:$6$4EghS31f$iauyWex09Mc9yaKYUR31z1AigzVIRBPxUr4J9NSgfpxHTOwwhsOM1gxZkPrwW1H2
+W9wEi4npIHZzzFKIju6TI0:19051:0:99999:7:::
+Then do
+echo
+&quot;iauyWex09Mc9yaKYUR31z1AigzVIRBPxUr4J9NSgfpxHTOwwhsOM1gxZkPrwW1H2W9wEi4npIHZzzFK
+Iju6TI0 &quot; | wc -c
+Output: 87
+sha-512,8,87
+rounds of salting or characters
+File: home/garviel/connections Use awk to create a separate CSV (comma separated value) file that
+contains columns 1-6. The flag is an MD5 hash of the new file. Hint: Look at #fields on line 6 in the file to
+understand column layout. Hint: This is a Zeek (formally known as Bro) connection log file in TSV
+format. Click This Link to learn about its formatting.
+awk -F &#39;\t&#39; &#39;BEGIN {OFS=&quot;,&quot;} {print $1,$2,$3,$4,$5,$6}&#39; /home/garviel/connections &gt;
+/home/garviel/connections.csv &amp;&amp; md5sum /home/garviel/connections.csv
+awk -F &#39;\t&#39;: Invokes awk and sets the field separator to a tab (\t), which is what separates the columns in the
+input TSV file.
+BEGIN {OFS=&quot;,&quot;}: Before processing any lines, sets the awk output field separator to a comma (,), the standard
+delimiter for CSV files.
+{print $1,$2,$3,$4,$5,$6}: For each line in the input file, it prints out the first six fields ($1 to $6), separated by
+commas, effectively converting it from TSV to CSV format.
+/home/garviel/connections: Specifies the input file connections located in the /home/garviel/ directory.
+&gt; /home/garviel/connections.csv: Redirects the output to a new file
+&amp;&amp;: This is a conditional operator that ensures the second command runs only if the first command (the awk
+part) succeeds without errors.
+md5sum /home/garviel/connections.csv: Calculates the MD5 hash of the new connections.csv file.
+The flag resides in $HOME/paths... you just need to determine which flag it is. The flag sits next to a
+string matching the name of a $PATH/binary on your system.
+Hint: The correct binary is not echo
+
+Hint: Compare the contents
+
+cat $HOME/paths - you see the data with the list of flags
+Next it says &quot;The flag sits next to a string matching the name of a $PATH/binary on your system&quot;
+echo $PATH - this is a list of all your paths, i.e. where the system looks for binary files when you call them
+without their fully qualified path. so when you put in the command &quot;echo&quot; it actually looks in this list, then
+finds the echo binary and on the backend calls it with the fully qualified path, i.e. &quot;/bin/echo&quot;
+Then the hint says &quot;Compare the contents&quot;
+So what it&#39;s asking is to take the list of binaries from $HOME/paths file and compare it to the list of system
+binaries. There should only be one that matches.
+So get just a raw list of binary names from /usr/bin using awk like this, and write the output to a file or variable
+or something:
+ls -l /usr/bin | awk -F &quot; &quot; &#39;{print$9}&#39; &gt; file2
+Then get the same formatted list from the flags file like this:
+cat $HOME/paths | cut -d &quot; &quot; -f1 &gt; file1
+Now you have the two lists, so compare them and only print out the ones they have in common
+comm -1 -2 file1 file2
+Output: python3
+Now find the flag that starts with python 3:
+cat $HOME/paths | grep python3
+File: home/garviel/numbers
+Use regular expressions to find valid Locally Administered or Universally Administered Unicast MAC
+addresses.Give the count of Locally and Universally Administered MAC addresses as the answer.
+HINT: What characters specifically define a Locally or Universally Administered Unicast MAC Address?
+cat numbers | egrep &#39;[0-9A-F][0|2|4|6|8|A|C|E]\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-F]{2}\-[0-9A-
+F]{2}\b&#39; | wc -l
+
+FILE: /home/garviel/Inquisition_Targets
+Identify heresy by comparing the Inquisition_Targets file to members of the Guardsmen group. HINT:
+Reformat and clean up the data before it is compared. awk and sort are your best friends! The flag is the
+number of heretics on the system.
+getent group guardsmen &gt; members.txt or cat etc/group | grep guardsmen &gt; members.txt
+cat members.txt | grep -f Inquisition_Targets
+count the red names
+The -f option tells grep to read patterns from a file, with one pattern per line.

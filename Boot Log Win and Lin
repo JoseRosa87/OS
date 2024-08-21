@@ -1,10 +1,14 @@
 WINDOWS BOOT PROCESS
 
 Mobaxterm – download it
+
 tasklist /svc (shows services)
+
 get-service (shoows running and stopped services)
+
 The system is booting into safe mode. Identify Command used to diagnose boot issues.
 BCDEDIT (looks at boot loader)
+
 The system is booting into safe mode. Correct that, and reboot into the desktop.
 BCDEDIT /deletevalue {default} safeboot
 Shutdown /a
@@ -17,6 +21,7 @@ Click on Current
 Turn safemode off
 Shutdown /a
 VM restart go into cmd run the shutdown /a
+
 Prevent the system restart using the command line, and then identify persistence mechanisms that are
 reverting the OS and boot loader configurations.
 The flag is in the same folder as the persistence mechanism.

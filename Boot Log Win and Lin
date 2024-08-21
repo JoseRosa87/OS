@@ -29,6 +29,7 @@ HINT: Copy the error message in its entirety to figure out what is happening to 
 Run the following: start services.msc
 Expand the name column and look for the suspicious service
 Filter by description usually bad actors don’t put a description
+
 Run PowerShell... if you can. Resolve PowerShell dependencies.
 HINT: Search the entire file system for the PowerShell .dll and copy it back to where it needs to go. It is
 hidden in China. The flag is a file in the directory with the .dll.
@@ -129,3 +130,68 @@ Enter the command used by the Grub, and the full path to the Kernel, as the flag
 Flag Format: command,kernel location HINT: Click me for help understanding Grub commands
 Machine: Minas_Tirith
 cat /boot/grub/grub.cfg
+__________________________________________________
+
+Notes:
+
+
+
+Detecting BIOS or UEFI on Windows
+
+Q: How can I tell if my machine is running BIOS or UEFI?
+
+findstr /C:"Detected boot environment" "C:\Windows\Panther\Setupact.log"
+Get-Content C:\Windows\Panther\Setupact.log | Select-String "Detected boot environment"
+
+
+    A2: Use the bcedit command
+
+bcdedit | findstr /i winload
+___________________________________________
+Windows System Initialization
+
+
+
+    Loading the Operating System Kernel
+
+    Initializing the Kernel
+
+    Starting Subsystems
+
+    Starting Session 0   for security and high privilege processes such as services. NO user is loged into session 0. **** *Can be tricked into executing malicious commands via services
+
+    Starting Session 1
+
+____________________________________________
+
+
+In Windows, the kernel is named Ntoskrnl.exe and is a critical system file. It does the following tasks during the boot process:
+
+    Loads the Windows Registry
+
+    Loads device drivers
+
+    Starts the system pagefile located at C:\pagefile.sys
+
+    Loads hal.dll
+
+        hal.dll provides abstraction between hardware interfaces and Ntoskrnl.exe
+
+Once the kernel is done loading it spawns System which hosts threads that only run in kernel mode responsible things like drivers. System then spawns the session management processes smss.exe and csrss.exe
+___________________________________________
+
+
+Q: What can I do if the Windows boot settings became corrupted?
+
+A: Fix it with the bcdedit command
+BCDEdit command help
+
+___________________________________________
+
+Delete the Legacy Operating System ( /f = force)
+
+bcdedit /delete {ntldr} /f
+
+
+
+

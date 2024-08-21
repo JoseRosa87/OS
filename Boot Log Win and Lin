@@ -1,1 +1,126 @@
+WINDOWS BOOT PROCESS
 
+Mobaxterm – download it
+tasklist /svc (shows services)
+get-service (shoows running and stopped services)
+The system is booting into safe mode. Identify Command used to diagnose boot issues.
+BCDEDIT (looks at boot loader)
+The system is booting into safe mode. Correct that, and reboot into the desktop.
+BCDEDIT /deletevalue {default} safeboot
+Shutdown /a
+-------------------------or--------------------------
+Windows + R
+-------------------------or--------------------------
+msconfig
+boot
+Click on Current
+Turn safemode off
+Shutdown /a
+VM restart go into cmd run the shutdown /a
+Prevent the system restart using the command line, and then identify persistence mechanisms that are
+reverting the OS and boot loader configurations.
+The flag is in the same folder as the persistence mechanism.
+HINT: Copy the error message in its entirety to figure out what is happening to the system.
+Run the following: start services.msc
+Expand the name column and look for the suspicious service
+Filter by description usually bad actors don’t put a description
+Run PowerShell... if you can. Resolve PowerShell dependencies.
+HINT: Search the entire file system for the PowerShell .dll and copy it back to where it needs to go. It is
+hidden in China. The flag is a file in the directory with the .dll.
+Back in safemood cmd run the command powershell. This will show the last known good location.
+Cd into that path
+Dir
+Cd into the path
+Tab to document with the hint
+-------------------------or--------------------------
+open cmd on desktop run shutdown /a
+run powershell in cmd
+follow the path to get the note
+take the .dll and copy it into the path
+Now run powershell in cmd
+Once you fix and launch PowerShell, the console is changed to a custom layout. Figure out what file is
+causing this, read the file, and inspect the file that it is referencing.
+$PSHome
+Test-path -path $Profile.allusersallhost (came back true so there is a profile)
+$Profile.allusersallhost (to get directory)
+
+get-content insert_path
+Run function
+____________________________________________________________________
+LINUX BOOT PROCESS
+lsblk (locate hard drive and partition)
+cat /boot/grub/grub.cfg (look at grub configuration file)
+ltrace -S cat /etc/passwd (showing system calls)
+ltrace -S lsmod (modules)
+init 6 (restart the box)
+cat /etc/inittab (on SysV machine)
+ls -l /etc/rc3.d/ (list contents of daemon directory)
+Another name for background processes (or services) in Linux is a daemon
+rc equivalent to run level rc1 – run level 1 rc3 – run level 3
+ls -lisa /lib/systemd/system/default.target (showing default target unit)
+/etc/profile – is under Linux Boot Process
+How many wants dependencies does SystemD actually recognize for the default.target
+HINT: Use the systemctl command with some arguments to make life easier. Flag format: #
+systemctl show --property Wants default.target
+The file /home/bombadil/mbroken is a copy of an MBR from another machine. Hash only the Bootstrap
+section of the MBR using md5sum. The flag is the entire hash.
+dd if=/home/bombadil/mbroken bs=446 count=1 status=none | md5sum
+d59a68c7b6d62ecaa1376dfb73a3b7be
+The file /home/bombadil/mbroken is a copy of an MBR from another machine. Hash the first partition of
+the file using md5sum. The flag is the hash.
+dd if=/home/bombadil/mbroken bs=1 skip=446 count=16 status=none | md5sum
+2a5948fad4ec68170b23faaa2a16cef8
+Locate the master boot record for one of the Linux machines and read it with xxd. What programming
+language is the MBR written in? HINT: Look at the first three bytes
+Assembly
+The file /home/bombadil/mbroken is a copy of an MBR from another machine.
+You will find the &quot;word&quot; GRUB in the output, hash using md5sum. The flag is the entire hash.
+command to view MBR &quot;mbroken&quot;  
+hd -n 512 mbroken
+Once you get the output find the line with GRUB and use the hex to find md5sum
+printf &quot;\x47\x52\x55\x42&quot; | md5sum
+-printf is used instead of echo because printf more reliably allows for the output of binary data from hex codes. -
+--The \xNN syntax is used to specify bytes in hexadecimal. So, \x47\x52\x55\x42 corresponds to the binary
+representation of &quot;GRUB&quot;.
+-The output of printf, which is the binary data for &quot;GRUB&quot;, is then piped into md5sum, which computes the
+MD5 hash.
+
+Identify the default run level on the SysV Init Linux machine.
+2
+What is the last script to run when the command init 6 is executed? Flag format: /absolute/path
+NOTE: “Use the Minas_Tirith machine for this question.” (Sysv3)
+/etc/init.d/reboot
+https://os.cybbh.io/public/os/latest/007_linux_boot_process/linboot_fg.html#_6_1_2_run_levels
+What run levels start the daemon that allows remote connections over port 22? Flag 2,3,4,5
+NOTE: Use the Minas_Tirith machine for this question. (Sysv4)
+Identify the file that init is symbolically-linked to, on the SystemD init machine.Flag format:
+/absolute/path Reminder: Use your Terra machine for these SystemD challenges! (Systemd)
+readlink -f $(which init)
+Answer: /lib/systemd/systemd
+What is the default target on the SystemD machine and where is it actually located? Flag format:
+name.target,/absolute/path NOTE: Use the SystemD Machine for this question. (Systemd)
+systemctl get-default
+systemctl status $(systemctl get-default) | grep -i loaded
+Answer: graphical.target,/lib/systemd/system/graphical.target
+What unit does the graphical.target want to start, based solely on its configuration file? HINT: Targets
+deal with which init system? Which machine should you be looking for this flag, on?
+NOTE: Use the SystemD Machine for this question. (Systemd)
+cat /lib/systemd/system/graphical.target
+Answer: display-manager.service
+What dependency to graphical.target will stop it from executing if it fails to start, based solely on its static
+configuration file? NOTE: Use the SystemD Machine for this question. (Systemd)
+cat /lib/systemd/system/default.target | tail -n 8
+Answer: multi-user.target
+How many wants dependencies does SystemD actually recognize for the default.target HINT: Use the
+systemctl command with some arguments to make life easier. Flag format: #
+NOTE: Use the SystemD Machine for this question.
+systemctl show --property Wants default.target
+What is the full path to the binary used for standard message logging? HINT: Standard message logging
+is standardized across UNIX systems. NOTE: As the challenge name suggests, use the SystemD machine
+for this question. Flag format: /absolute/path
+They are looking for the rsyslog daemon, answer: /usr/sbin/rsyslogd
+Identify the Linux Kernel being loaded by the Grub, by examining its configuration.
+Enter the command used by the Grub, and the full path to the Kernel, as the flag.
+Flag Format: command,kernel location HINT: Click me for help understanding Grub commands
+Machine: Minas_Tirith
+cat /boot/grub/grub.cfg

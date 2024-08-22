@@ -192,6 +192,9 @@ Delete the Legacy Operating System ( /f = force)
 
 bcdedit /delete {ntldr} /f
 
+________________________________________
 
+Linux 
+persistance = etc/profile
 
 

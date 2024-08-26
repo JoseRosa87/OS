@@ -1,1 +1,247 @@
+Windows 
+
 use autoruns to find bad stuff and use NETSTAT -ano | Grep more
+DLLs – Windows Process Validity
+Processes and Services
+sc query (get current services)
+Scheduled Tasks 3.2
+Netstat -anob
+schtask
+Get-Service | Where-Object {$_.Status -eq &quot;Running&quot;} | more (View only currently running services)
+SYSINTERNALS
+./autoruns.exe (windows registry has auto runs, scheduled task, image hijacks)
+-Services.msc
+-Image Hijacks (explorer always in there)
+./tcpview (Analyze Windows network connections using TCPVIEW)
+./procmon.exe (Used to monitor the Windows Boot Process)
+./accesschk.exe (View permissions)
+./handle.exe
+./sigcheck.exe (verify signatures / execution levels
+./loadord.exe (Get load order)
+./procexp
+Handle, Ports is in SysInternals
+
+What is the service name of Windows Defender Firewall?
+Services.msc
+Find it &gt; right click properties
+There is malware on the system that is named similarly to a legitimate Windows executable. There is a
+.dll in the folder that the malware runs from. The flag is the name of the .dll.
+Use ./autoruns.exe
+Everything tab
+You notice that there is an annoying pop up happening regularly. Investigate the process causing it. The
+flag is the name of the executable.
+Task Manager &gt; startup &gt; McAfeeFireTray
+Can Also use autoruns
+Determine what is sending out a SYN_SENT message. The flag is the name of the executable.
+HINT: Use a Sysinternals tool.
+./tcpview
+In State field look for SYN_SENT
+Malware uses names of legit processes to obfuscate itself. Give the flag located in Kerberos’ registry
+subkey.
+Go to autoruns &gt; Shows HKLM path, go to it
+What are the permissions for NT SERVICE\TrustedInstaller on spoolsv.exe? Copy the permissions from
+your shell.
+In powershell run:
+
+./accesschk.exe &quot;NT SERVICE\TrustedInstaller&quot; C:\Windows\System32\spoolsv.exe
+What is the PATH listed in the output when we find the handle for spoolsv.exe?
+./handle.exe spoolsv.exe
+What is the first .dll associated with winlogon.exe? Provide the name of the .dll only, not the
+/absolute/path
+./procexp
+Locate winlogon.exe
+Right-click “Properties”, there should be a “Threads” tab
+Inside the “Threads” tab, DLL list
+While examining the Windows Defender Firewall, what is the LogAllowedConnections setting set to, for
+the Public profile?
+Get-NetfirewallProfile
+Find suspicious port
+Netstat -ano (shows port and PID)
+Determine what mechanism opens suspicious port
+tasklist /svc /FI &quot;PID eq 2168&quot; (shows the process name)
+wmic process where processid=&quot;2168&quot; get ExecutablePath (shows what process and path it is)
+./procmon.exe &gt; filter PID is 2168 &gt; right-click properties
+To Get AUTORUNS
+net use * http://live.sysinternals.com
+New-PSDrive -Name &quot;SysInt&quot; -PSProvider FileSystem -Root \\live.sysinternals.com\Tools
+net use * http://live.sysinternals.com
+Cd SysInt: or cd Z: (you have to cd into psdrive before autoruns)
+___________________________________________________________________________
+
+Linux
+
+
+for linux use PS -elf or ps -aux < --- preferred
+
+Processes Listing
+ps show processes
+top command is used to show the Linux processes. It provides a dynamic real-time view of the running system.
+Use f to change parameters, space to add, then q to exit
+ps aux – print in order executed
+startup processes
+
+ps -elf | head (do a full format listing of all running processes on the system in long format)
+ps -elf --forest (Displays processes in an ASCII tree)
+netstat -palonut (View network connections and their associated processes)
+Process Ownership
+grep UID /etc/login.defs (show range of User IDs for system and human users)
+Signals
+Terminate processes
+Ignore
+signalservicename&gt; status/start/stop/restart
+Kill process
+Stop processes
+kill -l (list supported signals)
+EX: kill -19 &lt;PID of Process&gt;
+Check status/start/stop/restart a service on sysV
+$ service &lt;servicename&gt; status/start/stop/restart
+EX: $ service sshd status
+List all unit files that systemd has listed as active
+systemctl list-units
+Jobs
+jobs command will list all jobs and their status
+fg (foreground) ctrl+z to stop the job
+bg (background)
+Cron Jobs
+The cron daemon checks the directories /var/spool/cron, /etc/cron.d and the file /etc/crontab
+***One of these is root protected so you have to use sudo to cat things inside of it***
+have to know the user name who is running cron job
+sudo cat var/spool/cron/crontabs/root
+File Descriptors
+$ sudo lsof (View File Descriptors using the LSOF command.)
+sudo lsof | tail -30 (List all open files being used by every process)
+sudo lsof -c sshd (List all open files for a specific process)
+List all the proc directories.
+ls -l /proc/
+Grab the PID of a process.
+ps -elf | grep sshd
+List contents for that PID directory.
+sudo ls -l /proc/14139
+Orphan Processes
+ps --forest -el
+0 S root 22445 8834 0 80 0 - 4998 wait 21:00 pts/0 00:00:00 | | | \_ /bin/bash ./show-orphan.sh
+0 S root 22446 22445 0 80 0 - 3644 hrtime 21:00 pts/0 00:00:00 | | | \_ sleep 5
+
+0 S root 22440 1 0 80 0 - 3644 hrtime 21:00 pts/0 00:00:00 sleep 5 &lt;-- First Orphan
+Zombie Processes
+ps -elf |grep -v grep | grep sleep
+0 Z root 24346 24345 0 80 0 - 0 - 21:26 pts/0 00:00:00 [sleep] &lt;defunct&gt; &lt;-- Zombie
+0 Z root 24347 24345 0 80 0 - 0 - 21:26 pts/0 00:00:00 [sleep] &lt;defunct&gt; &lt;-- Zombie
+What is the process ID (PID) of the SysV Init daemon?
+ps -aux | grep init
+How many child processes did SysV Init daemon spawn?
+First find PID use:
+sudo lsof -c init (if you know the process)
+Then run:
+ps --ppid 1 (shows all the child processes)
+-------------------------or-------------------------
+$ htop
+Identify all of the arguments given to the ntpd daemon (service) using ps.
+Format: List all options with parameters (include numbers).
+$ ps -elf | grep ntpd
+What is the parent process to Bombadil’s Bash process? (name of the binary, not the absolute path)
+$ echo $PPID
+--------or---------
+$ htop
+
+Identify the file mapped to the fourth file descriptor (handle) of the cron process.
+HINT: There might be multiple cron processes, but only one with the answer. Flag format: /absolute/path
+$ sudo lsof
+--------or---------
+$ sudo lsof -c cron
+Look in the FD column for 3 because count starts at 0 making 3 equivalent to the fourth file descriptor.
+cron 1338 root 3u REG 0,19 5 10555 /run/crond.pid
+Identify the permissions that cron has on the file identified in Processes 5. HINT: Read the man page for
+lsof to understand permissions.
+sudo lsof -c cron (process)
+take the path and do:
+ls -l /run/crond.pid
+Identify the names of the orphan processes on the SysV system.
+NOTE: Remember, orphan processes spawn and die periodically. Try monitoring the processes list with
+top or htop to find them. Flag format: in alphabetical order with all non-alphabetic characters removed:
+Name,Name,Name,Name HINT: Only character names!
+htop
+hit f2, column, add ppid to it
+aragorn,brucewayne,eowyn,tolkien
+
+Locate zombie processes on the SysV system. Identify the zombie processes&#39; parent process.
+NOTE: Remember, zombie processes only live until the parent process kills and removes them from the
+system’s process table. Try monitoring the processes list with top or htop to find them.
+Flag format: /absolute/path
+/bin/funk
+
+Locate the strange open port on the SysV system. Identify the command line executable and its
+arguments. Flag format: /executable/path -arguments
+Did the following command to find active listening ports: netstat -tuln or netstat -ano
+To find the PID: sudo lsof -i:9999
+After finding the PID, looked for the PID: ps -elf
+Elf allows you to see the path and arguments.
+Locate the strange open port on the SysV system. Identify how the process persists between reboots.
+The flag is the absolute path for the file that contains the persistence mechanism, and the configuration
+option. HINT: Persistence is defined here. Flag format: filepath,configuration_option
+/etc/inittab (It starts with the kernel executing the first process on the machine, or the Initialization daemon. In
+SysV machines it is the /etc/init program. Then, init reads /etc/inittab to start creating processes in groups called
+Run Levels. The processes that each Run Level starts are defined in /etc/rc*.d)
+cat /etc/inittab
+configurtaion_ option 91:2345:respawn:/bin/netcat -lp 9999
+
+Examine the process list to find the ssh process. Then, identify the symbolic link to the absolute path for
+its executable in the /proc directory. The flag is the absolute path to the symbolic link, and the file it is
+linked to. Flag format: /absolute/path,/absolute/path
+ps aux | grep ssh or pgrep sshd
+sudo ls -l /proc/1834 (process ID)
+/proc/1876/exe,/usr/sbin/sshd
+Identify the file that contains udp connection information. Identify the process using port 123.
+For the flag, enter:
+Process name
+File descriptor number for the udp socket
+Its permissions as shown in lsof
+Flag format: name,#,permission
+sudo lsof -i udp:123 or sudo lsof -i:123
+ntpd 1469 ntp 19u IPv4 12428 0t0 UDP 10.17.0.7:ntp
+Answer: ntpd,19,U
+
+Locate the strange open port on the SysV system. Identify how the process persists between reboots.
+
+The flag is the absolute path for the file that contains the persistence mechanism, and the configuration
+option. HINT: Persistence is defined here. Flag format: filepath,configuration_option
+netstat -tuln
+ps -aux | grep 9999
+Identify one of the human-readable file handles by the other program that creates a zombie process.
+NOTE: Remember, zombie processes only live until the parent process kills them. Try monitoring the
+processes list with top or htop to find them. The flag is the text from one of the files it reads.
+$ htop
+Saw the zombie process thenine
+$ ps -aux
+
+Strings /usr/local/bin/thenine (use strings because of how the output was)
+Then you see strange paths //run//thering
+Cat //run//thering
+Then see another strange path //opt//mysoul
+Cat //opt//mysoul
+The FLAG
+Scenario: The Villains group has been chanting offerings to their new leader at regular intervals over a
+TCP connection.
+Task: Identify their method of communication and how it is occurring. Locate the following artifacts: **
+The chant/text used by each villain (include spaces) ** The new Lord receiving the offering ** The IP
+address and port that the offering is received over. Flag format: chant text,new Lord,IP:port. Machine:
+Minas_Tirith
+Mausan ukoul for avhe mubullat goth,witch_king,127.0.0.1:1234
+Scenario: The web server has been modified by an unknown hacktivist group. Users accessing the web
+server are reporting crashes and insane disk usage. Task: Identify the Cyber Attack Method used by the
+group, and the command running. Flag format: method,command. Machine: Terra Try not to break your
+machine on this one...
+ps -aux
+dos,/bin/apache3 -lp 443 &lt; /dev/urandom
+Scenario: Someone or something is stealing files with a .txt extension from user directories. Determine
+how these thefts are occurring. Task: Identify the command being ran and how it occurs. Flag format:
+command,how it occurs. Machine: Terra. Hint: Explore persistence mechanisms and services.
+lib/systemd/system
+sudo find /lib/systemd/system -type f -exec grep -H &#39;*.txt&#39; {} \;
+systemctl status vestrisecreta.service
+Scenario: Analysts have found a dump of commands on the Internet that refer to the Terra machine. The
+command history for one of the users with an interactive login is being stolen via unknown means. The
+network analysts can’t find any persistent connections, but notice a spike in traffic on logon and logoff.
+Task: Identify how the command history is stolen from the machine. The flag is the file used to execute
+the commands, and where they are sent. Flag format: /absolute/path/to/file,IP:port Machine: Terra
+/home/garviel/.bash_logout,12.54.37.8:12000

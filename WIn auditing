@@ -1,1 +1,140 @@
 
+To find SID's use  Get-LocalUser | select Name,SID 
+ (User assist )Get-ItemProperty "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\count"    encoded in ROT13 
+
+
+BAM -
+Location
+
+Show in Reg Edit:
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings #On 1809 and Newer
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bam\UserSettings #On 1803 and below
+
+----------------------------------------------------  Get-Childitem
+The prefetch files are stored in “\Root\Windows\Prefetch” folder.  C:\Windows\Prefetch
+
+
+____________________________________________________
+
+WINDOWS AUDITING AND LOGGING
+Executable File Execution
+Shortcut File Execution
+Get-LocalUser | select Name,SID (Find SID)
+Get-LocalUser | where-object {$_.name -eq &quot;andy.dwyer&quot;} | select *
+BAM
+cmd &gt; systeminfo
+PS: Get-ComputerInfo | select osname,osversion,OsHardwareAbstractionLayer
+
+Get-Itemproperty &#39;HKLM:\SYSTEM\CurrentControlSet\Services\bam\UserSettings\S-1-5-21-2881336348-
+3190591231-4063445930-1004&#39;
+
+Recycle Bin
+Content in the recycle bin is identified by:
+ SID - determines which user deleted it
+ Timestamp - When it was deleted
+ $RXXXXXX - content of deleted files
+ $IXXXXXX - original PATH and name
+
+Location – C:\$Recycle.bin (Hidden System Folder)
+Find Contents of the Recycle Bin (stuff sitting in recycle bin)
+Get-Childitem &#39;C:\$RECYCLE.BIN&#39; -Recurse -Verbose -Force | select FullName
+To find Recycle Bin artifacts for specific user, match SID/read files
+Get-Content &quot;C:\`$RECYCLE.BIN\S-1-5-21-2881336348-3190591231-4063445930-1003\`$RZDAQ4U.txt&quot;
+$I – full path
+get-childitem -recurse -force ‘C:\$RECYCLE.BIN’ | foreach {get-content $_.fullname}
+get-childitem -recurse -force ‘C:\$RECYCLE.BIN’
+Loop through Recycle Bin
+Get-Childitem &#39;C:\$RECYCLE.BIN&#39; -Recurse -Verbose -Force | foreach {get-content $_.fullname}
+Prefetch
+hash noting.
+The prefetch file for calc.exe would appear as CALC.EXE-0FE8F3A9.pf, where 0FE8F3A9 is a hash of the
+path from where the file was executed.
+General Format of a prefetch file: (exename)-(hash-of-path).pf
+The prefetch files are stored in “\Root\Windows\Prefetch” folder.
+Use Eric Zimmerman’s PECmd.exe utility to analyze Prefetch data
+
+Get-Childitem -Path &#39;C:\Windows\Prefetch&#39; -ErrorAction Continue | select -First 8
+----------------------------------------------or---------------------------------------------------
+Get-Childitem -Path &#39;C:\Windows\Prefetch&#39; -ErrorAction Continue | select
+LastAccessTime,Name,LastWriteTime -First 20
+Jump Lists
+Programs/Items that were recently used
+Get-Childitem -Recurse C:\Users\*\AppData\Roaming\Microsoft\Windows\Recent -ErrorAction Continue |
+select FullName, LastAccessTime
+----------------------------------------------or---------------------------------------------------
+Get-Childitem -Recurse $env:USERPROFILE\AppData\Roaming\Microsoft\Windows\Recent -ErrorAction
+SilentlyContinue | select FullName,LastAccessTime
+-you can run strings against everyone of the outputs
+Query Hex value
+Get-Item &#39;Registry::\HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.*&#39;
+
+Browser Artifacts
+Recent Websites/Frequency ./strings.exe &#39;C:\users\student\AppData\Local\Google\Chrome\User
+Data\Default\History&#39; -accepteula
+Most Visited Sites ./strings.exe &#39;C:\users\student\AppData\Local\Google\Chrome\User
+Data\Default\Top Sites&#39;
+
+SQL Lite
+Auditing
+Event Logs
+Locations
+Windows Event View Application
+1. Get-Eventlog or Get-WinEvent in Powershell
+2. wevtutil in Command Prompt
+Display Event Logs
+Get-EventLog -LogName System -Newest 10
+------or-----
+Get-WinEvent -LogName System -First 10
+Search through the entire Security log for a specific string
+Get-Eventlog -LogName Security | ft -wrap | findstr /i StR1nG
+Get-WinEvent -Listlog * | findstr /i &quot;Security&quot;
+Finding Log Type to Query
+Get-WinEvent -Listlog *
+(Get-WinEvent -Listlog *).count (count the amount)
+Event IDs
+Powershell transcript
+
+***********************
+
+C:\Users\Public\Downloads
+C:\Users\username\Downloads
+***********************
+
+Figure out the last access time of the hosts file.
+Flag format: mm/dd/yyyy
+Get-Childitem -Path &#39;C:\Windows\System32\drivers\etc\hosts&#39; -ErrorAction Continue | select
+LastAccessTime,Name,LastWriteTime -First 5
+Find the questionable website that a user browsed to (using Chrome), that appears to be malicious.
+*Note: There are more than one users on the box. Machine: Workstation2 (ssh from Admin_Station)
+Z:\strings.exe &#39;C:\users\student\AppData\Local\Google\Chrome\User Data\Default\History&#39; -accepteula
+Enter the name of the questionable file in the prefetch folder.
+Get-Childitem -Path &#39;C:\Windows\Prefetch&#39; -ErrorAction Continue | select -First 20
+Check event logs for a &quot;flag&quot; string. Machine: file-server
+Get-Eventlog -LogName System | ft -wrap | findstr /i flag
+Find the file in the jump list location that might allow privilege escalation.
+gc
+&quot;C:\Users\student\AppData\Roaming\Microsoft\Windows\Recent\AutomaticDestinations\5f7b5f1e01b81337.au
+tomaticDestinations-ms&quot; | Select-String &quot;.txt&quot;
+Recover the flag from the Recycle Bin. Enter the name of the recycle bin file that contained the contents
+of the flag, and the contents of the deleted file. Include the file extension in your answer.
+*Hint: &quot;Don&#39;t&quot; Flag format: filename,contents
+Find the Contents of the Recycle Bin:
+Get-Childitem &#39;C:\$RECYCLE.BIN&#39; -Recurse -Verbose -Force | select FullName
+Did get content on txt files until I found the answer:
+Get-Content &quot;C:\`$RECYCLE.BIN\S-1-5-21-2881336348-3190591231-4063445930-1003\`$RZDAQ4U.txt&quot;
+Or do Get-Childitem &#39;C:\$RECYCLE.BIN&#39; -Recurse -Verbose -Force | foreach {get-content $_.fullname}
+And count up from the bottom, file is the 7 th one
+Then run: Get-Childitem &#39;C:\$RECYCLE.BIN&#39; -Recurse -Verbose -Force | select FullName
+Then do a get-content of the 7 th file up from the bottom after the desktop.ini files
+There is a file that was recently opened that may contain PII. Get the flag from the contents of the file.
+Hint: We&#39;re not interested in numbers.
+Get-Item
+&quot;REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt&quot; |
+select -Expand property | ForEach-Object {[System.Text.Encoding]::Default.GetString((Get-ItemProperty -Path
+&quot;REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt&quot; -
+Name $_).$_)}
+Then cat the file: cat ‘C:\Users\student\Documents\3-14-24.txt’
+Flag, Find A
+Bam 2. Enter the full path of the program that was run on this computer from an abnormal location.
+get-itemproperty HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bam\UserSettings\*

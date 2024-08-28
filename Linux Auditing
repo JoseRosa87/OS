@@ -1,0 +1,117 @@
+LINUX AUDITING &amp; LOGGING
+Logging is controlled by syslog or journald
+Logs stored in var/log
+Syslog Daemon
+Syslog stores its logs as human-readable text documents within /var/log. It is configured using files in
+/etc/rsyslog/.
+Syslog Configuration – cat /etc/rsyslog.d/50-default.conf
+Filtering Syslog Log Files
+Syslog log files are plain text documents they are easily filtered using simple command line tools like cat, vi ,
+and grep.
+Filter - grep timesyncd /var/log/syslog
+Filter - grep -R &quot;\w*\.\w*\.\w*&quot; /var/log/syslog
+Log Rotations
+A daily cron job runs the logrotate binary controls log rotations. The cron job runs logrotate with the path to its
+configuration file /etc/logrotate.conf as an argument. /etc/logrotate.conf defines how often logs are rotated.
+Show log Rotations – cat /etc/logrotate.conf
+Showing Rotated Logs – ls -l var/log (1,2,.gz have been archived)
+vim and zcat (gz) will read zip files without extracting them
+Essential Syslog Types/Locations
+varlog/offlog
+Authentication Logs – varlog/auth.log varrun/utmp varlog/wtmp
+Application Logs – varlog/mysql
+System Logs – varlog/messages varlog/syslog dmesg
+Location: All logs are in /var, most are in /var/log
+Config File: /etc/rsyslog.conf
+Service: /usr/sbin/rsyslogd
+Journald Logs
+ Journald or systemd-journald.service is the logging daemon for systemd init Linux systems
+journalctl in its base form shows all the logs currently saved by journald
+ Basic Journal ctf usage – # journalctl -e (show the last logs its received with -e)
+ Filtering logs by Boot – # journalctl --list-boots
+# journalctl -b b3076f6774b841e08c19236bf327f529 (take number from output of last command)
+ Filtering Logs by specific unit – # journalctl -u ssh.service
+ Filtering Logs since a specific time period – # journalctl -u ssh.service --since &quot;2 days ago&quot;
+Log Formats
+xpath - XML
+JSON
+jq
+
+Challenges
+File: /home/garviel/output.xml
+
+Parse all of the IP addresses from the file using XPATH queries
+https://www.w3schools.com/xml/xpath_intro.asp
+HINT:
+http://xpather.com/
+http://www.whitebeam.org/library/guide/TechNotes/xpathtestbed.rhtm
+Sample Output (without piping to MD5SUM)
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+addr=&quot;XXX.xxx.xxx.xxx&quot;
+--TRIMMED--
+Flag format: md5 hash of output
+xpath -e &quot;//address/@addr&quot; output.xml | md5sum
+
+File: /home/garviel/output.xml
+Select all of the IP addresses and ports using a single XPATH Union Statement
+Pipe the result to md5sum for the flag
+HINT:
+https://carpentries-incubator.github.io/lc-webscraping/
+http://www.tizag.com/xmlTutorial/xpathbar.php
+Sample Output (without piping to MD5SUM)
+addr=&quot;xx.xxx.xx.xx&quot;
+addr=&quot;xx.xxx.xx.xx&quot;
+addr=&quot;xx.xxx.xx.xx&quot;
+addr=&quot;xx.xxx.xx.xx&quot;
+portid=&quot;xx&quot;
+addr=&quot;10.50.29.6&quot;
+addr=&quot;xx.xxx.xx.xx&quot;
+portid=&quot;22&quot;
+--TRIMMED--
+xpath -e &quot;//address/@addr | //port/@portid&quot; output.xml | md5sum
+File : /home/garviel/conn.log
+This file is a conn.log made in Zeek (Bro) with data about TCP/IP connections.
+Use jq to locate and count the unique originating endpoint IP addresses in the file. Enter the number of unique
+originating IP addresses as the flag.
+Flag format: #
+HINT: Use this link to understand the JSON object’s attributes
+jq &#39;.&quot;id.orig_h&quot;&#39; conn.log | sort | uniq | wc -l
+
+File: /home/garviel/conn.log
+This file is a conn.log made in Zeek (Bro) with data about TCP/IP connections.
+Use jq to locate and count connections where the destination IP sent more than 40 bytes to the source IP.
+Flag format: #
+jq &#39;.&quot;resp_ip_bytes&quot;&#39; conn.log | sort | awk &#39;$1 &gt; 40&#39; | wc -l
+File: /home/garviel/output.xml
+Select every IP address with open (in use) ports using XPATH queries and XPATH axes.
+Pipe the result to md5sum for the flag
+Sample Output (without piping to MD5SUM)
+addr=&quot;10.50.29.5&quot;
+portid=&quot;xx&quot;
+addr=&quot;xx.xx.xx.xx&quot;
+portid=&quot;xx&quot;
+--TRIMMED--
+xpath -e &quot;//*[@state=&#39;open&#39;]/../../../address/@addr|//*[@state=&#39;open&#39;]/../@portid&quot; output.xml | md5sum
+File: /home/garviel/conn.log
+Use jq to pretty print the JSON file conn.log.
+Hash the pretty-printed file with md5sum for the flag.
+Sample JSON &quot;Pretty Print&quot; Output (without piping to MD5SUM)
+&quot;ts&quot;: 1615383120.585641,
+&quot;uid&quot;: &quot;C9ybUDHykHdrh0h93&quot;,
+&quot;id.orig_h&quot;: &quot;10.50.24.73&quot;,
+&quot;id.orig_p&quot;: 38156,
+&quot;id.resp_h&quot;: &quot;192.168.65.20&quot;,
+&quot;id.resp_p&quot;: 443,
+&quot;proto&quot;: &quot;tcp&quot;,
+&quot;duration&quot;: 2.8133392333984375e-05,
+&quot;orig_bytes&quot;: 0,
+&quot;resp_bytes&quot;: 0,
+HINT:
+https://jqplay.org/
+https://docs.jsonata.org/simple
+https://stedolan.github.io/jq/manual/
+jq . conn.log | md5sum
